@@ -39,17 +39,15 @@ import static androidx.constraintlayout.motion.widget.Debug.getLocation;
 public class MainActivity extends Activity {
 
     private GpsTracker gpsTracker;
-    private TextView tvLatitude,tvLongitude;
     private TextView city;
+    private Button changeCity;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        tvLatitude = (TextView)findViewById(R.id.latitude);
-        tvLongitude = (TextView)findViewById(R.id.longitude);
-
         city = (TextView) findViewById(R.id.city);
+        changeCity = (Button) findViewById(R.id.changecity);
 
         try {
             if (ContextCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ) {
@@ -58,9 +56,20 @@ public class MainActivity extends Activity {
         } catch (Exception e){
             e.printStackTrace();
         }
+        getLocation();
+
+        changeCity.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, SecondActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+
     }
 
-    public void getLocation(View view){
+    private void getLocation(){
         gpsTracker = new GpsTracker(MainActivity.this);
         if(gpsTracker.canGetLocation()){
             double latitude = gpsTracker.getLatitude();
@@ -73,14 +82,7 @@ public class MainActivity extends Activity {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            String cityName = addresses.get(0).getAddressLine(0);
-            String stateName = addresses.get(0).getAddressLine(1);
-            String countryName = addresses.get(0).getAddressLine(2);
-
             city.setText(addresses.get(0).getLocality());
-
-            tvLatitude.setText(String.valueOf(latitude));
-            tvLongitude.setText(String.valueOf(longitude));
         }else{
             gpsTracker.showSettingsAlert();
         }
